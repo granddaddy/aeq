@@ -140,18 +140,12 @@ class S(BaseHTTPRequestHandler):
 		if self.path == "/land":
 			land.generateLand()
 			landStr = land.prettyPrintLand()
-
-			f = open("land.txt", "w")
-			f.write(landStr)
-
+			
 			self.wfile.write(landStr)
 
 		elif self.path == "/castles":
 			peaks, valleys = land.findPeaksAndValleys(land)
 			castlesStr = land.prettyPrintCastles(peaks, valleys)
-
-			f = open("castles.txt", "w")
-			f.write(castlesStr)
 
 			self.wfile.write(castlesStr)
 
