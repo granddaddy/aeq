@@ -12,7 +12,7 @@
 		</script>
 		<script>
 		function loadData() {
-			$.get("http://localhost:3000/land", function(data, status){
+			$.get("./land", function(data, status){
 				var land = data.split('\n');
 
 				var rows = land.length;
@@ -32,7 +32,7 @@
 
 				columns = land[0].length
 
-				$.get("http://localhost:3000/castles", function(data, status){
+				$.get("./castles", function(data, status){
 					var castles = data.split('\n');
 
 					var rows = castles.length;
