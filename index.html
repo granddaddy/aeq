@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta content="chrome=1" http-equiv="X-UA-Compatible">
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+		<title>d3 x3dom demo</title>
+		<script src="http://mbostock.github.com/d3/d3.js" type="text/javascript"></script>
+		<script src="http://x3dom.org/x3dom/example/x3dom.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js">
+		</script>
+		<script>
+		function loadData() {
+			$.get("http://localhost:3000/land", function(data, status){
+				var land = data.split('\n');
+
+				var rows = land.length;
+
+				landArr = new Array();
+
+				for (var i = 0; i < land.length; i++) {
+					document.getElementById("info").innerHTML += land[i] + '<br>';
+
+					land[i] = land[i].split(",");
+					land[i] = land[i].map(function(x) { return x / 10.0 });
+					landArr = landArr.concat(land[i]);
+				}
+				
+				document.getElementById("info").innerHTML += '<br>';
+					
+
+				columns = land[0].length
+
+				$.get("http://localhost:3000/castles", function(data, status){
+					var castles = data.split('\n');
+
+					var rows = castles.length;
+
+					castlesArr = new Array();
+
+					for (let i = 0; i < castles.length; i++) {
+						document.getElementById("info").innerHTML += castles[i] + '<br>';
+
+						castles[i] = castles[i].split(",");
+						castles[i] = castles[i];
+						castlesArr = castlesArr.concat(castles[i]);
+					}
+
+					document.getElementById("info").innerHTML += '<br>';
+
+					refresh(landArr, castlesArr, rows, columns)
+				});
+
+			});
+
+		}
+
+		x3d = d3.select("body").append("x3d").attr("height", "500px").attr("width", "100%");
+		var scene = x3d.append("scene");
+		scene.append("viewpoint").attr("position", "13.742265188709691 -27.453522975182366 16.816062840792625").attr("orientation", "0.962043810961999 0.1696342804961945 0.21376603254551874 1.379433089729343");
+
+		function refresh(data, castlesData, rows, columns) {
+			var shapes = scene.selectAll("transform").data( data );
+			var shapesEnter = shapes
+					.enter()
+					.append( "transform" )
+					.append( "shape" )
+					;
+			// Enter and update
+
+			shapes.transition()
+					.attr("translation", function(d, i) { return (i % columns) *1.5 + " " + Math.floor(i / rows)*1.5 + " " + d/2.0; } )
+					.attr("scale", function(d) { return "1.0 1.0 " + d; } )
+					;
+
+			var p=0, v=0;
+			shapesEnter
+					.append("appearance")
+					.append("material")
+					.attr("diffuseColor", function(d, i) { if (castlesData[i] == "VV") { v++; return "#E5FC00"; }; if (castlesData[i] == "PP") { p++; return "#FF51A8" } else { return "#FFFFFF" } } );
+
+			document.getElementById("info").innerHTML += "peaks: " + p + ", valleys: " + v + '\n';
+			shapesEnter.append( "box" )
+				.attr( "size", "1.0 1.0 1.0" );
+		}
+
+		loadData();
+	</script>
+	<p id="info" style="font-family: courier new"></p>
+	</body>
+</html>
